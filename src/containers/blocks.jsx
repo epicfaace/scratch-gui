@@ -95,14 +95,19 @@ class Blocks extends React.Component {
             {rtl: this.props.isRtl, toolbox: this.props.toolboxXML},
         );
 
-        // Retrieve zoom from redux state, if the language is changed and the component needs to remount.
+        // Retrieve zoom, scrollX, scrollY from redux state, if the language is changed and the component needs to remount.
+        let workspaceMetrics = null;
         if (this.props.vm.editingTarget && this.props.vm.editingTarget.id) {
-            const metrics = this.props.workspaceMetrics[this.props.vm.editingTarget.id];
-            if (metrics && metrics.scale) {
-                workspaceConfig.zoom.startScale = metrics.scale;
+            workspaceMetrics = this.props.workspaceMetrics[this.props.vm.editingTarget.id];
+            if (workspaceMetrics) {
+                workspaceConfig.zoom.startScale = workspaceMetrics.scale;
             }
         }
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
+        if (workspaceMetrics) {
+            this.workspace.scrollX = workspaceMetrics.scrollX;
+            this.workspace.scrollY = workspaceMetrics.scrollY;
+        }
 
         // we actually never want the workspace to enable "refresh toolbox" - this basically re-renders the
         // entire toolbox every time we reset the workspace.  We call updateToolbox as a part of
@@ -342,8 +347,8 @@ class Blocks extends React.Component {
 
         if (this.props.vm.editingTarget && this.props.workspaceMetrics[this.props.vm.editingTarget.id]) {
             const {scrollX, scrollY, scale} = this.props.workspaceMetrics[this.props.vm.editingTarget.id];
-            this.workspace.scrollX = scrollX;
-            this.workspace.scrollY = scrollY;
+            // this.workspace.scrollX = scrollX;
+            // this.workspace.scrollY = scrollY;
             this.workspace.scale = scale;
             this.workspace.resize();
         }
